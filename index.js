@@ -15,7 +15,7 @@ app.get('/', (req, res) => {
 })
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.ir3lm70.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -71,7 +71,7 @@ async function run() {
       const giveBookmarks = await bookMarkDB.find(query).toArray()
       res.send(giveBookmarks)
       
-    })
+    });
     app.post('/addBookMark', async(req, res)=>{
       const bookmark = req.body;
       const query = { email: bookmark.email, movie_id: bookmark.movie_id}
@@ -82,6 +82,13 @@ async function run() {
         const addToBookMark = await bookMarkDB.insertOne(bookmark)
         res.send({bookMarked : true, addToBookMark})
       }
+    });
+
+    app.delete('/remove/:id', async(req, res)=>{
+      const id = req.params.id
+      const query = { _id : new ObjectId(id) }
+      const deleteBookmark = await bookMarkDB.deleteOne(query)
+      res.send(deleteBookmark)
     })
     
     // Send a ping to confirm a successful connection
