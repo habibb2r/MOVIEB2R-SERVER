@@ -35,12 +35,14 @@ async function run() {
 
     //Collection List
     const usersDB = client.db("movieB2R").collection("userCollection");
+    const bookMarkDB = client.db("movieB2R").collection("bookmarkCollection");
 
 
 
 
     // Operations
 
+    //User
     app.get('/userList', async (req, res) => {
       const list = await usersDB.find().toArray();
       res.send(list);
@@ -57,6 +59,29 @@ async function run() {
         res.send({ addedUser,Exist : false});
       }
       
+    })
+
+
+
+    //Book Mark
+
+    app.get('/bookMarks', async (req, res) => {
+      const email = req.query;
+      const query = { email : email.email}
+      const giveBookmarks = await bookMarkDB.find(query).toArray()
+      res.send(giveBookmarks)
+      
+    })
+    app.post('/addBookMark', async(req, res)=>{
+      const bookmark = req.body;
+      const query = { email: bookmark.email, movie_id: bookmark.movie_id}
+      const queryBookmark = await bookMarkDB.findOne(query)
+      if(queryBookmark){
+        res.send({ bookMarked : false})
+      }else{
+        const addToBookMark = await bookMarkDB.insertOne(bookmark)
+        res.send({bookMarked : true, addToBookMark})
+      }
     })
     
     // Send a ping to confirm a successful connection
